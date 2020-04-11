@@ -208,7 +208,9 @@ public class FlansModRaytracer
 
 				hits.add(new BlockHit(hit, lambda, blockState));
 				penetration -= ShotHandler.getBlockPenetrationDecrease(blockState, pos, world);
-			}
+			} else {
+                            penetration -= 1;
+                        }
 			
 			if (penetration > 0)
 			{
