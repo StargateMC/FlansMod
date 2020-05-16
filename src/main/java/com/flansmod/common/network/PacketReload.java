@@ -50,30 +50,35 @@ public class PacketReload extends PacketBase
 	@Override
 	public void handleServerSide(EntityPlayerMP playerEntity) 
 	{
-		PlayerData data = PlayerHandler.getPlayerData(playerEntity);
-		ItemStack stack = playerEntity.getCurrentEquippedItem();
-		int slot = playerEntity.inventory.currentItem;
-		if(isOffHand && data.offHandGunSlot != 0)
-		{
-			stack = playerEntity.inventory.getStackInSlot(data.offHandGunSlot - 1);
-			slot = data.offHandGunSlot - 1;
-		}
-		if(data != null && stack != null && stack.getItem() instanceof ItemGun)
-		{
-			GunType type = ((ItemGun)stack.getItem()).GetType();
-			
-			if(((ItemGun)stack.getItem()).Reload(stack, playerEntity.worldObj, playerEntity, playerEntity.inventory, isOffHand, data.offHandGunSlot != 0, isForced, playerEntity.capabilities.isCreativeMode))
-			{
-				//Set the reload delay
-				data.shootTimeRight = data.shootTimeLeft = type.reloadTime;
-				if(isOffHand)
-					data.reloadingLeft = true;
-				else data.reloadingRight = true;
-				//Play reload sound
-				if(type.reloadSound != null)
-					PacketPlaySound.sendSoundPacket(playerEntity.posX, playerEntity.posY, playerEntity.posZ, FlansMod.soundRange, playerEntity.dimension, type.reloadSound, false);
-			}
-		}
+		try {
+                    PlayerData data = PlayerHandler.getPlayerData(playerEntity);
+                    ItemStack stack = playerEntity.getCurrentEquippedItem();
+                    int slot = playerEntity.inventory.currentItem;
+
+                    if(isOffHand && data.offHandGunSlot != 0)
+                    {
+                            stack = playerEntity.inventory.getStackInSlot(data.offHandGunSlot - 1);
+                            slot = data.offHandGunSlot - 1;
+                    }
+                    if(data != null && stack != null && stack.getItem() instanceof ItemGun)
+                    {
+                            GunType type = ((ItemGun)stack.getItem()).GetType();
+
+                            if(((ItemGun)stack.getItem()).Reload(stack, playerEntity.worldObj, playerEntity, playerEntity.inventory, isOffHand, data.offHandGunSlot != 0, isForced, playerEntity.capabilities.isCreativeMode))
+                            {
+                                    //Set the reload delay
+                                    data.shootTimeRight = data.shootTimeLeft = type.reloadTime;
+                                    if(isOffHand)
+                                            data.reloadingLeft = true;
+                                    else data.reloadingRight = true;
+                                    //Play reload sound
+                                    if(type.reloadSound != null)
+                                            PacketPlaySound.sendSoundPacket(playerEntity.posX, playerEntity.posY, playerEntity.posZ, FlansMod.soundRange, playerEntity.dimension, type.reloadSound, false);
+                            }
+                    }
+                } catch (Exception e) {
+                    FlansMod.log("Failed to handle reload packet, exception: " + e.getMessage());
+                }
 	}
 
 	@Override
