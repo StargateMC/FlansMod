@@ -51,30 +51,35 @@ public class PacketReload extends PacketBase
 	@Override
 	public void handleServerSide(EntityPlayerMP playerEntity)
 	{
-		EnumHand hand = isOffHand ? EnumHand.OFF_HAND : EnumHand.MAIN_HAND;
-		PlayerData data = PlayerHandler.getPlayerData(playerEntity);
-		ItemStack main = playerEntity.getHeldItemMainhand();
-		ItemStack off = playerEntity.getHeldItemOffhand();
-		ItemStack stack = isOffHand ? off : main;
-		boolean hasOffHand = main != null && !main.isEmpty() && off != null && !off.isEmpty();
-		if(data != null && stack != null && stack.getItem() instanceof ItemGun)
-		{
-			GunType type = ((ItemGun)stack.getItem()).GetType();
-			
-			if(((ItemGun)stack.getItem()).Reload(stack, playerEntity.world, playerEntity, playerEntity.inventory, hand, hasOffHand, isForced, playerEntity.capabilities.isCreativeMode))
-			{
-				//Set the reload delay
-				data.shootTimeRight = data.shootTimeLeft = type.reloadTime;
-				if(isOffHand)
-					data.reloadingLeft = true;
-				else data.reloadingRight = true;
-				//Play reload sound
-				if(type.reloadSound != null)
-					PacketPlaySound.sendSoundPacket(playerEntity.posX, playerEntity.posY, playerEntity.posZ, FlansMod.soundRange, playerEntity.dimension, type.reloadSound, false);
-			
-				FlansMod.getPacketHandler().sendTo(new PacketGunAnimation(hand, type.reloadTime, type.getPumpDelayAfterReload(), type.getPumpTime()), playerEntity);
-			}
-		}
+		try {
+                    EnumHand hand = isOffHand ? EnumHand.OFF_HAND : EnumHand.MAIN_HAND;
+                    PlayerData data = PlayerHandler.getPlayerData(playerEntity);
+                    ItemStack main = playerEntity.getHeldItemMainhand();
+                    ItemStack off = playerEntity.getHeldItemOffhand();
+                    ItemStack stack = isOffHand ? off : main;
+                    boolean hasOffHand = main != null && !main.isEmpty() && off != null && !off.isEmpty();
+                    if(data != null && stack != null && stack.getItem() instanceof ItemGun)
+                    {
+                            GunType type = ((ItemGun)stack.getItem()).GetType();
+
+                            if(((ItemGun)stack.getItem()).Reload(stack, playerEntity.world, playerEntity, playerEntity.inventory, hand, hasOffHand, isForced, playerEntity.capabilities.isCreativeMode))
+                            {
+                                    //Set the reload delay
+                                    data.shootTimeRight = data.shootTimeLeft = type.reloadTime;
+                                    if(isOffHand)
+                                            data.reloadingLeft = true;
+                                    else data.reloadingRight = true;
+                                    //Play reload sound
+                                    if(type.reloadSound != null)
+                                            PacketPlaySound.sendSoundPacket(playerEntity.posX, playerEntity.posY, playerEntity.posZ, FlansMod.soundRange, playerEntity.dimension, type.reloadSound, false);
+
+                                    FlansMod.getPacketHandler().sendTo(new PacketGunAnimation(hand, type.reloadTime, type.getPumpDelayAfterReload(), type.getPumpTime()), playerEntity);
+                            }
+                    }
+                } catch (Exception e) {
+                    FlansMod.log.warn("Failed to handle reload packet, exception: " + e.getMessage());
+                    e.printStackTrace();
+                }
 	}
 	
 	@Override
